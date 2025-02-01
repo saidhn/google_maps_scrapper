@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Data Input</title>
+</head>
+
+<body>
+    <form id="myForm" style="font-family: system-ui;">
+        <div style="text-align: center;font-size: xx-large;margin-bottom: 20px;">
+            <label for="searchKey">عبارة البحث</label>
+        </div>
+        <div style="text-align: center;">
+            <input type="text" id="searchKey" name="searchKey" style="
+            width: 80%;
+            border-radius: 20px;
+            border: 1px solid #afafaf;
+            font-size: 20px;
+            padding: 4px 10px;
+            text-align: center;
+            direction: rtl;
+            color: #9C27B0;
+        "><br><br>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit" style="border-radius: 20px;
+        border: none;
+        font-size: 20px;
+        padding: 5px 30px;
+        text-align: center;
+        direction: rtl;
+        color: #ffffff;
+        background:#9C27B0;
+    ">ابدا</button>
+        </div>
+    </form>
+
+    <div style="text-align: center;font-size: xx-large;margin-bottom: 20px;">
+        <div id="message"></div>
+    </div>
+    <div style="text-align: center;font-size: xx-large;margin-bottom: 20px;">
+        <div id="counter"
+            style="display: none; width:100px;background:#9C27B0;color:white;border-radius: 50%;margin: auto;padding: 30px 0;">
+        </div>
+    </div>
+</body>
+
+<script>
+    const form = document.getElementById('myForm');
+    const messageDiv = document.getElementById('message');
+    const counterDisplay = document.getElementById('counter');
+    let counter = 0; // Initialize counter
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const searchKey = document.getElementById('searchKey').value;
+
+        window.electronAPI.submitData(searchKey)
+            .then(response => {
+                if (response.error) {
+                    console.log("error");
+                    messageDiv.textContent = response.error;
+                } else {
+                    console.log("success!");
+                    messageDiv.textContent = response.message;
+                    console.log("startRefresher is called");
+                    startRefresher();
+                    form.style.display = "none";
+                }
+                console.log('Response from main process:', response);
+            });
+    });
+
+    function startRefresher() {
+        // Get initial counter value from backend (if needed)
+        window.electronAPI.getCounter()  // New API call to get initial counter
+            .then(initialCounter => {
+                counter = initialCounter; // Set initial counter value
+                updateCounterDisplay(); // Display initial counter
+
+                // Start interval after getting initial value
+                setInterval(() => {
+                    window.electronAPI.getCounter() // Request counter update from backend
+                        .then(updatedCounter => {
+                            counter = updatedCounter; // Update counter with backend value
+                            updateCounterDisplay();
+                        })
+                        .catch(error => {
+                            console.error("Error getting counter:", error);
+                            counterDisplay.textContent = "Error getting counter."; // Display error
+                        });
+                }, 4000); // Update every 4 seconds
+            })
+            .catch(error => {
+                console.error("Error getting initial counter:", error);
+                counterDisplay.textContent = "Error getting initial counter.";
+            });
+    }
+
+
+    function updateCounterDisplay() {
+        counterDisplay.style.display = "block";
+        counterDisplay.textContent = counter;
+    }
+</script>
+</body>
+
+</html>

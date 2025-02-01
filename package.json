@@ -2,13 +2,15 @@
   "name": "google_maps_scrapper",
   "version": "1.0.0",
   "description": "scrap data from google maps",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "csv-stringify": "^6.5.2",
+    "electron": "^34.0.2",
     "puppeteer": "^24.1.1"
   }
 }
